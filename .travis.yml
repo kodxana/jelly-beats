@@ -41,7 +41,15 @@ script:
       electronuserland/builder:wine \
       /bin/bash -c "env | grep -v '\r' | grep -iE 'DEBUG|TARGET|NODE_|ELECTRON_|YARN_|NPM_|CI|CIRCLE|TRAVIS|APPVEYOR_|CSC_|GH_|GITHUB_|BT_|AWS_|STRIP|BUILD_|WIN_' && yarn --link-duplicates --pure-lockfile && yarn dist --win --publish onTag";
   fi
-- if [ "$TARGET" == "mac" ]; then yarn build --publish onTag; fi
+- if [ "$TARGET" == "mac" ]; then yarn dist --publish onTag; fi
 - if [ "$TARGET" == "linux" ]; then yarn
   dist --linux --publish onTag; fi
 
+addons:
+  artifacts:
+    working_dir: dist
+    paths:
+    - $(git ls-files -o dist/{*.dmg,*.exe,*.deb} | tr "\n" ":")
+    target_paths:
+    - "/app/build-${TRAVIS_BUILD_NUMBER}_commit-${TRAVIS_COMMIT:0:7}$([ ! -z ${TRAVIS_TAG}
+      ] && echo _tag-${TRAVIS_TAG})"
